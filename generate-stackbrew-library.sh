@@ -32,6 +32,22 @@ dirCommit() {
 	)
 }
 
+getArches() {
+	local repo="$1"; shift
+	local officialImagesUrl='https://github.com/docker-library/official-images/raw/master/library/'
+
+	eval "declare -g -A parentRepoToArches=( $(
+		find -name 'Dockerfile' -exec awk '
+				toupper($1) == "FROM" && $2 !~ /^('"$repo"'|scratch|microsoft\/[^:]+)(:|$)/ {
+					print "'"$officialImagesUrl"'" $2
+				}
+			' '{}' + \
+			| sort -u \
+			| xargs bashbrew cat --format '[{{ .RepoName }}:{{ .TagName }}]="{{ join " " .TagEntry.Architectures }}"'
+	) )"
+}
+getArches 'wordpress'
+
 cat <<-EOH
 # this file is generated via https://github.com/docker-library/wordpress/blob/$(fileCommit "$self")/$self
 
@@ -96,11 +112,70 @@ for phpVersion in "${phpVersions[@]}"; do
 			fullAliases+=( "${phpVersionAliases[@]}" )
 		fi
 
+		variantParent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
+		variantArches="${parentRepoToArches[$variantParent]}"
+
 		echo
 		cat <<-EOE
 			Tags: $(join ', ' "${fullAliases[@]}")
+			Architectures: $(join ', ' $variantArches)
 			GitCommit: $commit
 			Directory: $dir
 		EOE
 	done
+done
+
+echo
+echo '# Now, wp-cli variants (which do _not_ include WordPress, so no WordPress version number -- only wp-cli version)'
+
+for phpVersion in "${phpVersions[@]}"; do
+	variant='cli'
+
+	dir="$phpVersion/$variant"
+	[ -f "$dir/Dockerfile" ] || continue
+
+	commit="$(dirCommit "$dir")"
+
+	fullVersion="$(git show "$commit":"$dir/Dockerfile" | awk '$1 == "ENV" && $2 == "WORDPRESS_CLI_VERSION" { print $3; exit }')"
+
+	versionAliases=()
+	while [ "${fullVersion%[.-]*}" != "$fullVersion" ]; do
+		versionAliases+=( $fullVersion )
+		fullVersion="${fullVersion%[.-]*}"
+	done
+	versionAliases+=(
+		$fullVersion
+		latest
+	)
+
+	phpVersionAliases=( "${versionAliases[@]/#/$phpVersion-}" )
+	phpVersionAliases=( "${phpVersionAliases[@]//-latest/}" )
+
+	variantAliases=( "${versionAliases[@]/#/$variant-}" )
+	variantAliases=( "${variantAliases[@]//-latest/}" )
+
+	phpVersionVariantAliases=( "${versionAliases[@]/#/$variant-}" )
+	phpVersionVariantAliases=( "${phpVersionVariantAliases[@]//-latest/}" )
+	phpVersionVariantAliases=( "${phpVersionVariantAliases[@]/%/-$phpVersion}" )
+
+	fullAliases=()
+
+	if [ "$phpVersion" = "$defaultPhpVersion" ]; then
+		fullAliases+=( "${variantAliases[@]}" )
+	fi
+
+	fullAliases+=(
+		"${phpVersionVariantAliases[@]}"
+	)
+
+	variantParent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
+	variantArches="${parentRepoToArches[$variantParent]}"
+
+	echo
+	cat <<-EOE
+		Tags: $(join ', ' "${fullAliases[@]}")
+		Architectures: $(join ', ' $variantArches)
+		GitCommit: $commit
+		Directory: $dir
+	EOE
 done
