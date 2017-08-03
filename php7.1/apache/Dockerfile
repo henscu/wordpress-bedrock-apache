@@ -29,18 +29,10 @@ RUN a2enmod rewrite expires
 
 VOLUME /var/www/html
 
-ENV WORDPRESS_VERSION 4.8
-ENV WORDPRESS_SHA1 3738189a1f37a03fb9cb087160b457d7a641ccb4
+# Henry Scullion - Update DocumentRoot as bedrock runs in /var/www/html/web
+RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/web#' /etc/apache2/sites-available/000-default.conf
 
-RUN set -ex; \
-	curl -o wordpress.tar.gz -fSL "https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz"; \
-	echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c -; \
-# upstream tarballs include ./wordpress/ so this gives us /usr/src/wordpress
-	tar -xzf wordpress.tar.gz -C /usr/src/; \
-	rm wordpress.tar.gz; \
-	chown -R www-data:www-data /usr/src/wordpress
+# COPY docker-entrypoint.sh /usr/local/bin/
 
-COPY docker-entrypoint.sh /usr/local/bin/
-
-ENTRYPOINT ["docker-entrypoint.sh"]
+# ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
