@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: 'db'
+    ports:
+      - 3307:3306        # Access database at localhost:3307
+    environment:
+      - MYSQL_ROOT_PASSWORD=u4qBzMF46Pe4  # Mandatory - Root password
+      - MYSQL_DATABASE=db_55qDMA          # Optional - Database name
+      - MYSQL_USER=dbusr_x24Tuw           # Optional - User
+      - MYSQL_PASSWORD=g4s2r9Mjw7FD3H8Q   # Optional - Password
+    volumes:
+      - ./db_data:/var/lib/mysql      # Mount ./db_data on /var/lib/mysql
+
+  wordpress:
+    image: henscu/wordpress-bedrock-apache
+    container_name: 'wordpress'
+    ports:
+      - 8081:80          # Access website at localhost:8081
+    depends_on:
+      - db
+    environment:
+       - WORDPRESS_DB_HOST=db:3306
+       - WORDPRESS_DB_NAME=db_55qDMA             # Same as for mysql above.
+       - WORDPRESS_DB_USER=dbusr_x24Tuw          # Same as for mysql usr above.
+       - WORDPRESS_DB_PASSWORD=g4s2r9Mjw7FD3H8Q  # Same as user pwd for mysql above.
+    volumes:
+      - ../bedrock:/var/www/html:rw   # Mount Bedrock WordPress on /var/www/html
