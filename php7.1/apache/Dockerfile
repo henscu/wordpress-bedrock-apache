@@ -29,13 +29,5 @@ RUN a2enmod rewrite expires
 
 VOLUME /var/www/html
 
-# Henry Scullion - Update DocumentRoot as bedrock runs in /var/www/html/web
-RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/web#' /etc/apache2/sites-enabled/000-default.conf
-
-# Add WP-CLI 
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-  && chmod +x wp-cli.phar \
-  && mv wp-cli.phar /usr/local/bin/wp
-
 # ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
