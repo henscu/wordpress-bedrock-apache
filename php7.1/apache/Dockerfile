@@ -27,6 +27,9 @@ RUN { \
 
 RUN a2enmod rewrite expires
 
+# Enable ssl
+RUN a2enmod mod_ssl
+
 VOLUME /var/www/html
 
 # ENTRYPOINT ["docker-entrypoint.sh"]
