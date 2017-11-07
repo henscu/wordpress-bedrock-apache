@@ -27,8 +27,9 @@ RUN { \
 
 RUN a2enmod rewrite expires
 
-# Enable ssl
-RUN a2enmod mod_ssl
+# Enable ssl module and load default config file
+RUN a2enmod ssl
+RUN a2ensite default-ssl
 
 VOLUME /var/www/html
 
