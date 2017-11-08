@@ -31,6 +31,8 @@ RUN a2enmod rewrite expires
 RUN a2enmod ssl && \
     a2ensite default-ssl
 
+RUN service apache2 restart
+
 EXPOSE 443
 
 VOLUME /var/www/html
