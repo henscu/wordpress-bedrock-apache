@@ -27,13 +27,14 @@ RUN { \
 
 RUN a2enmod rewrite expires
 
+EXPOSE 443
+
 # Enable ssl module and load default config file
 RUN a2enmod ssl && \
-    a2ensite default-ssl
+    a2ensite default-ssl && \
+	make-ssl-cert generate-default-snakeoil
 
 RUN service apache2 restart
-
-EXPOSE 443
 
 VOLUME /var/www/html
 
