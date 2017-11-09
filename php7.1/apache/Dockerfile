@@ -32,7 +32,7 @@ EXPOSE 443
 # Enable ssl module and load default config file
 RUN a2enmod ssl && \
     a2ensite default-ssl && \
-    openssl req -new -x509 -days 365 -nodes -out /etc/ssl/certs/ssl-cert-snakeoil.pem -keyout /etc/ssl/private/ssl-cert-snakeoil.key
+    openssl req -new -x509 -days 365 -subj '/CN=localhost' -nodes -out /etc/ssl/certs/ssl-cert-snakeoil.pem -keyout /etc/ssl/private/ssl-cert-snakeoil.key
 
 #	make-ssl-cert generate-default-snakeoil
 
