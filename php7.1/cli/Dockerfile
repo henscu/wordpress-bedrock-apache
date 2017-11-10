@@ -12,12 +12,10 @@ RUN set -ex; \
 	docker-php-ext-install gd mysqli opcache; \
 	\
 	runDeps="$( \
-		scanelf --needed --nobanner --recursive \
-			/usr/local/lib/php/extensions \
-			| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
+			| tr ',' '\n' \
 			| sort -u \
-			| xargs -r apk info --installed \
-			| sort -u \
+			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)"; \
 	apk add --virtual .wordpress-phpexts-rundeps $runDeps; \
 	apk del .build-deps
@@ -50,8 +48,8 @@ VOLUME /var/www/html
 # sub   2048R/45F9CDE2 2016-01-07
 ENV WORDPRESS_CLI_GPG_KEY 3B9191625F3B1F1BF5DD3B47673A02042F6B6B7F
 
-ENV WORDPRESS_CLI_VERSION 1.3.0
-ENV WORDPRESS_CLI_SHA512 710d41171358fbaff5962e23d1acfda1327e03cbc59bb7c5d8a7ff87fee009ac678bc8f8e690bc743f40bc54ae8907f1f16e4e5abd166c05dc7769cd15b00084
+ENV WORDPRESS_CLI_VERSION 1.4.0
+ENV WORDPRESS_CLI_SHA512 da1abdced95e6f90986c66ad3239a573824ef9a7dd0078b8f1df685e19a62af68325b9b7388d5406df5383b35e48c50cc82c0c529d05fc01dcc4c9175229b517
 
 RUN set -ex; \
 	\
