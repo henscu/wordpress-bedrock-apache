@@ -43,7 +43,7 @@ EXPOSE 443
 
 #	make-ssl-cert generate-default-snakeoil
 
-#RUN service apache2 restart
+RUN service apache2 restart
 
 VOLUME /var/www/html
 
