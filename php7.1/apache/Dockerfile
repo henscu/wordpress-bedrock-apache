@@ -12,6 +12,13 @@ RUN set -ex; \
 	\
 	docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
 	docker-php-ext-install gd mysqli opcache
+
+RUN apt-get update && \
+     apt-get install -y  --no-install-recommends ssl-cert && \
+     rm -r /var/lib/apt/lists/* && \
+     a2enmod ssl && \
+     a2ensite default-ssl
+
 # TODO consider removing the *-dev deps and only keeping the necessary lib* packages
 
 # set recommended PHP.ini settings
@@ -30,13 +37,13 @@ RUN a2enmod rewrite expires
 EXPOSE 443
 
 # Enable ssl module and load default config file
-RUN a2enmod ssl && \
-    a2ensite default-ssl && \
-    openssl req -new -x509 -days 365 -subj '/CN=localhost' -nodes -out /etc/ssl/certs/ssl-cert-snakeoil.pem -keyout /etc/ssl/private/ssl-cert-snakeoil.key
+#RUN a2enmod ssl && \
+#    a2ensite default-ssl && \
+#    openssl req -new -x509 -days 365 -subj '/CN=localhost' -nodes -out /etc/ssl/certs/ssl-cert-snakeoil.pem -keyout /etc/ssl/private/ssl-cert-snakeoil.key
 
 #	make-ssl-cert generate-default-snakeoil
 
-RUN service apache2 restart
+#RUN service apache2 restart
 
 VOLUME /var/www/html
 
