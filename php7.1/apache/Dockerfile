@@ -46,7 +46,7 @@ RUN service apache2 restart
 
 RUN a2ensite default-ssl
 
-RUN service apache2 reload
+RUN service apache2 restart
 
 VOLUME /var/www/html
 
