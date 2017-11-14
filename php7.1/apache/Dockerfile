@@ -16,8 +16,7 @@ RUN set -ex; \
 RUN apt-get update && \
      apt-get install -y  --no-install-recommends ssl-cert && \
      rm -r /var/lib/apt/lists/* && \
-     a2enmod ssl && \
-     a2ensite default-ssl
+     a2enmod ssl
 
 # TODO consider removing the *-dev deps and only keeping the necessary lib* packages
 
@@ -44,6 +43,8 @@ EXPOSE 443
 #	make-ssl-cert generate-default-snakeoil
 
 RUN service apache2 restart
+
+RUN a2ensite default-ssl
 
 VOLUME /var/www/html
 
