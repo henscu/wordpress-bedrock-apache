@@ -46,6 +46,8 @@ RUN service apache2 restart
 
 RUN a2ensite default-ssl
 
+RUN service apache2 reload
+
 VOLUME /var/www/html
 
 # ENTRYPOINT ["docker-entrypoint.sh"]
